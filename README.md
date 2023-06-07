@@ -4,9 +4,9 @@ This is an advanced web-based audio player built using the Web Audio API, HTML, 
 
 ## Screenshot
 
-![image-20230607174630845](D:\Note\Note\大学笔记\大四\大四\大四\大四上\音乐编程\assignment\作业2\assignment2-YijunChen\assignment2\assets\image-20230607174630845-1686131198148-1.png)
+![image-20230607174630845](assets/image-20230607174630845-1686131198148-1.png)
 
-![image-20230607174857076](D:\Note\Note\大学笔记\大四\大四\大四\大四上\音乐编程\assignment\作业2\assignment2-YijunChen\assignment2\assets\image-20230607174857076-1686131340908-3.png)
+![image-20230607174857076](assets/image-20230607174857076-1686131340908-3.png)
 
 ## Environment
 
