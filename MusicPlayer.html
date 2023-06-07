@@ -1,0 +1,1936 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="UTF-8">
+  <!-- import CSS -->
+  <link rel="stylesheet" href="./MusicPlayer.css">
+  <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+</head>
+
+<body>
+
+  <div id="example-3">
+    <el-row :gutter="20" style="margin-top:50px;">
+
+      <!-- left part--playList -->
+      <el-col :span="4">
+        <div style="background-color: #def5e5;width:240px;height: 1000px;">
+          <div style="height: 20px;"> </div>
+          <div class="milkyForSmall">Songs List</div>
+          <el-upload class="upload-demo" ref="upload" action="https://jsonplaceholder.typicode.com/posts/"
+            :on-preview="handlePreview" :file-list="fileList" :auto-upload="false" :on-change="choiceFile">
+            <el-button slot="trigger" size="small" size="mini"
+              style="background-color: #8ec3b0;font-size: 15px;margin-left: 100px;margin-top: 10px; color: #ffffff;">
+              Add Track
+            </el-button>
+
+          </el-upload>
+        </div>
+      </el-col>
+      <!-- left part--playList -->
+
+      <!-- middle part-music box -->
+      <el-col :span="14">
+        <el-card style="background-color: #def5e5;">
+          <div class="musicPlayer">
+
+            <div>
+              <!-- topMenu -->
+              <!-- 菜单 -->
+              <el-menu style="background-color:#def5e5 ;" :default-active="activeIndex" class="topMenu"
+                mode="horizontal">
+
+                <el-menu-item index="2" style="width:400px" @click="saveAudio">Save</el-menu-item>
+
+                <el-menu-item index="4" style="width:400px" @click="handleShowHelp">Help</el-menu-item>
+              </el-menu>
+              <!-- 菜单 -->
+              <!-- topMenu -->
+              <div>
+                <!-- 显示播放的音乐 -->
+                <!-- <el-row>
+                <el-col :span="24"> -->
+                <!-- <audio id="player">
+                  <source :src="currentMusicPath">
+                  <p>The audio file format is not supported</p>
+                </audio> -->
+
+
+                <!-- top Info -->
+                <div>
+                  <div class="milky">Music Box</div>
+
+
+                  <div v-show="currentMusicName!=null"
+                    style="font-weight:800;font-size:large;margin:auto;width:400px;text-align: center; background-color: #9ed5c5;font-size: 20px;color: #ffffff;">
+                    {{currentMusicName}}</div>
+                  <div v-show="currentMusicName==null"
+                    style="font-weight:800;font-size:large;margin:auto;width:400px;text-align: center;font-size: 20px;color: #9ed5c5;">
+                    In music, I can speak freely, free. </div>
+                </div>
+                <!-- top Info -->
+                <!-- basic operations -->
+                <div style="text-align: center;margin-top: 20px;">
+                  <el-tooltip class="item" effect="dark" content="Play" placement="bottom-start">
+                    <!-- 播放 -->
+                    <el-button @click="handlePlayMusic" icon="el-icon-video-play" size="mini" circle
+                      style="border:none; color: aliceblue;  background: rgba(158, 213, 197);font-size: 25px;font-weight: 800;">
+                    </el-button>
+
+
+                  </el-tooltip>
+
+                  <!-- 暂停 -->
+                  <el-tooltip class="item" effect="dark" content="Pause" placement="bottom-start">
+                    <el-button @click="handleStopMusic" icon="el-icon-video-pause" size="mini" circle
+                      style="border:none;  background: rgba(158, 213, 197);font-size: 25px;font-weight: 800;color: aliceblue; ">
+                    </el-button>
+
+                  </el-tooltip>
+
+                  <!-- 循环 -->
+                  <el-tooltip class="item" effect="dark" content="Loops" placement="bottom-start">
+                    <el-button @click="handleLoops" icon="el-icon-s-opportunity" size="mini" circle
+                      style="border:none;  background: rgba(158, 213, 197);font-size: 25px;font-weight: 800;color: aliceblue; ">
+                    </el-button>
+
+                  </el-tooltip>
+
+
+                  <!-- 暂停并且重新播放 -->
+
+                  <el-tooltip class="item" effect="dark" content="Play from start" placement="bottom-start">
+                    <el-button @click="handleStopAndRefreshMusic" icon="el-icon-refresh-left                  "
+                      size="mini" circle
+                      style="border:none;  background: rgba(158, 213, 197);font-size: 25px;font-weight: 800;color: aliceblue; ">
+                    </el-button>
+
+                  </el-tooltip>
+
+
+
+
+                  <!-- 快退十秒 -->
+                  <!-- <el-tooltip class="item" effect="dark" content="Back 20 seconds" placement="bottom-start">
+                    <el-button @click="handlePlayMusicForTime(-20)" icon="el-icon-d-arrow-left" size="mini" circle
+                      style="border:none;  background: rgba(158, 213, 197);font-size: 25px;font-weight: 800;color: aliceblue; ">
+                    </el-button>
+
+                  </el-tooltip>
+ -->
+
+                  <!-- 快进十秒 -->
+
+
+                  <!-- <el-tooltip class="item" effect="dark" content="Add 20 seconds" placement="bottom-start">
+                    <el-button @click="handlePlayMusicForTime(20)" icon="el-icon-d-arrow-right" size="mini" circle
+                      style="border:none;  background: rgba(158, 213, 197);font-size: 25px;font-weight: 800;color: aliceblue; ">
+                    </el-button>
+
+                  </el-tooltip> -->
+                  <!-- 上一首 -->
+                  <el-tooltip class="item" effect="dark" content="Last song" placement="bottom-start">
+                    <el-button @click="handlePlayLastMusic" icon="el-icon-caret-left" size="mini" circle
+                      style="border:none;  background: rgba(158, 213, 197);font-size: 25px;font-weight: 800;color: aliceblue; ">
+                    </el-button>
+
+                  </el-tooltip>
+
+                  <!-- 下一首 -->
+                  <el-tooltip class="item" effect="dark" content="Next song" placement="bottom-start">
+                    <el-button @click="handlePlayNextMusic" icon="el-icon-caret-right" size="mini" circle
+                      style="border:none;  background: rgba(158, 213, 197);font-size: 25px;font-weight: 800;color: aliceblue; ">
+                    </el-button>
+                  </el-tooltip>
+                </div>
+                <!-- basic operations -->
+
+
+                <!-- visualizing the audio. -->
+                <div style="margin-top: 10px;margin-left: -20px;">
+                  <canvas id="casvased1" style="background-color: #9ed5c5;" :width="canvasWidth1"
+                    :height="canvasHeight1"></canvas>
+                  <canvas style="background-color: #9ed5c5;" id="casvased2" :width="canvasWidth"
+                    :height="canvasHeight"></canvas>
+                  <canvas style="background-color: #9ed5c5;" id="casvased3" :width="canvasWidth3"
+                    :height="canvasHeight3"></canvas>
+                </div>
+                <!-- visualizing the audio. -->
+              </div>
+            </div>
+          </div>
+        </el-card>
+      </el-col>
+      <!-- middle part-music box -->
+
+      <!-- right part- audio effects and filters -->
+      <el-col :span="6">
+        <div style="background-color: #def5e5; height: 1000px;">
+          <el-tabs v-model="activeName1">
+            <el-tab-pane label="Audio Effect" name="first"
+              style=" width: 300px;color: #8ec3b0;font-weight:800;padding: 5px; font-size: 16px;">
+
+
+
+              <!-- WaveShaperNode 
+              https://developer.mozilla.org/en-US/docs/Web/API/WaveShaperNode
+              -->
+              <div>
+
+                <a href="https://developer.mozilla.org/en-US/docs/Web/API/WaveShaperNode" target="_blank">
+                  WaveShaperNode:</a>
+                <el-switch :disabled="currentMusicName==null" v-model="showWaveShaperNode" @change="handleWaveShapper"
+                  active-color="#13ce66" inactive-color="#ff4949">
+                </el-switch>
+                <div class="block" v-show="showWaveShaperNode">
+
+
+
+                  <div style="display:flex">
+                    <div style="margin-right: 20px;margin-top: 5px;"> Amount：</div>
+                    <el-slider style="width:200px" :max="2000" :min="0" :step="100" v-model="currentWaveShapperAmount"
+                      @change="changeWaveShapperValue"></el-slider>
+                  </div>
+
+
+
+                  Oversample:
+                  <el-select v-model="currentOversample" placeholder="Choose" size="mini"
+                    @change="changeWaveShapperValue">
+                    <el-option v-for="item in oversampleOptions" :key="item.value" :label="item.label"
+                      :value="item.value">
+                    </el-option>
+                  </el-select>
+                </div>
+              </div>
+              <hr />
+              <!-- WaveShaperNode -->
+
+
+
+
+              <!-- DelayNode
+                https://developer.mozilla.org/en-US/docs/Web/API/DelayNode -->
+              <div>
+
+                <a href="https://developer.mozilla.org/en-US/docs/Web/API/DelayNode" target="_blank">
+                  DelayNode:</a>
+                <el-switch :disabled="currentMusicName==null" v-model="showDelay" @change="handleDelay"
+                  active-color="#13ce66" inactive-color="#ff4949">
+                </el-switch>
+
+                <div style="display:flex" v-show="showDelay">
+                  <div style="margin-right: 20px;margin-top: 5px;"> DelayTime:</div>
+                  <el-slider style="width:200px" v-model="delayTime" @change="changeDelay"></el-slider>
+                </div>
+
+              </div>
+              <hr />
+              <!-- DelayNode -->
+
+
+              <!-- RandomNoiseNode
+              random-noise-processor
+              -->
+              <div>
+                RandomNoiseNode:
+                <el-switch :disabled="currentMusicName==null" v-model="showNoise" @change="handleNoise"
+                  active-color="#13ce66" inactive-color="#ff4949">
+                </el-switch>
+
+              </div>
+              <hr />
+              <!-- RandomNoiseNode -->
+
+              <!-- ConvolverNode
+                https://developer.mozilla.org/en-US/docs/Web/API/ConvolverNode
+               -->
+              <div>
+
+                <a href="https://developer.mozilla.org/en-US/docs/Web/API/ConvolverNode" target="_blank">
+                  ConvolverNode:</a>
+                <!-- <el-button type="primary" size="mini" @click="handleConvolverEffect">开启</el-button><br> -->
+                <el-switch :disabled="currentMusicName==null" v-model="showConvolver" @change="handleConvolverEffect"
+                  active-color="#13ce66" inactive-color="#ff4949">
+                </el-switch>
+
+                <div class="block" v-show="showConvolver">
+                  <div style="display:flex">
+                    <div style="margin-right: 20px;margin-top: 5px;"> Dry Wet:</div>
+                    <el-slider v-model="currentDryWet" @change="changeDryWet" style="width:100px">
+                    </el-slider>
+                  </div>
+
+
+                  <div style="display:flex">
+                    <div style="margin-right: 20px;margin-top: 5px;"> Acoustic spaces:</div>
+                    <el-select size="mini" v-model="currentConvolver" placeholder="Choose" @change="loadImpulse">
+                      <el-option v-for="item in impulseOptions" :key="item.value" :label="item.label"
+                        :value="item.value">
+                      </el-option>
+                    </el-select>
+                  </div>
+
+
+
+
+                </div>
+
+
+
+
+
+
+              </div>
+              <hr />
+              <!-- ConvolverNode -->
+
+
+
+              <!-- StereoPannerNose 
+              https://developer.mozilla.org/en-US/docs/Web/API/StereoPannerNode/StereoPannerNode
+              -->
+              <div>
+
+
+                <a href="https://developer.mozilla.org/en-US/docs/Web/API/StereoPannerNode/StereoPannerNode"
+                  target="_blank">
+                  StereoPannerNose：</a>
+                <el-switch :disabled="currentMusicName==null" v-model="showSpaceLREffect" @change="setupSpaceSound"
+                  active-color="#13ce66" inactive-color="#ff4949">
+                </el-switch>
+
+                <div style="display:flex" v-show="showSpaceLREffect">
+                  <div style="margin-right: 20px;margin-top: 5px;"> Padding:</div>
+                  <el-slider style="width:200px" :step="0.1" :min="-1" :max="1" v-model="currentLRSpaceParams"
+                    :format-tooltip="formatLRSpaceParams" @change="changeLRSpaceParams"></el-slider>
+                </div>
+
+              </div>
+              <hr />
+              <!-- StereoPannerNose -->
+
+
+
+
+
+
+
+
+              <!-- OscillatorNode -->
+              <!-- 
+               -->
+              <div>
+                OscillatorNode
+                <el-switch :disabled="currentMusicName==null" v-model="showOscillatorNode"
+                  @change="handleOscillatorNode" active-color="#13ce66" inactive-color="#ff4949">
+                </el-switch>
+                <div v-show="showOscillatorNode">
+
+                  <div style="display:flex">
+                    <div style="margin-right: 20px;margin-top: 5px;"> Frequency:</div>
+                    <el-slider style="width:200px" :max="10000" :min="440" v-model="OscillatorFrequency"
+                      @change="changeOscillatorNodeParams"></el-slider>
+
+                  </div>
+                  <div style="display:flex">
+                    <div style="margin-right: 20px;margin-top: 5px;"> Amplitude:</div>
+                    <el-slider style="width:200px" v-model="OscillatorNodeAmplitude"
+                      @change="changeOscillatorNodeParams"></el-slider>
+
+                  </div>
+                  <div style="display:flex">
+
+                    <div style="margin-right: 20px;margin-top: 5px;"> Type:</div>
+                    <el-select size="mini" v-model="OscillatorType" placeholder="Choose"
+                      @change="changeOscillatorNodeParams">
+                      <el-option v-for="item in oscillatorTypeOptions" :key="item.value" :label="item.label"
+                        :value="item.value">
+                      </el-option>
+                    </el-select>
+                  </div>
+                  <div style="display:flex">
+                    <div style="margin-right: 20px;margin-top: 5px;"> Detune</div>
+                    <el-select size="mini" v-model="OscillatorDetune" placeholder="Choose"
+                      @change="changeOscillatorNodeParams">
+                      <el-option v-for="item in notesOptions" :key="item.value" :label="item.label" :value="item.value">
+                      </el-option>
+                    </el-select>
+                  </div>
+
+                </div>
+              </div>
+              <hr />
+
+
+
+
+
+
+
+
+              <!-- AudioBufferSourceNode
+              https://developer.mozilla.org/en-US/docs/Web/API/AudioBufferSourceNode
+              -->
+              <div>
+
+
+                <a href="https://developer.mozilla.org/en-US/docs/Web/API/AudioBufferSourceNode" target="_blank">
+                  AudioBufferSourceNode:</a>
+                <el-switch :disabled="currentMusicName==null" v-model="showAudioBufferSourceNodeParams"
+                  @change="handleshowAudioBufferSourceNodeParams" active-color="#13ce66" inactive-color="#ff4949">
+                </el-switch>
+                <div v-show="showAudioBufferSourceNodeParams">
+                  <div style="display:flex">
+                    <div style="margin-right: 20px;margin-top: 5px;"> Detune：</div>
+                    <el-slider style="width:200px" :step="10" :min="-10000" :max="10000" v-model="currentDetune"
+                      @change="changeAudioBufferSourceNodeParams"></el-slider>
+
+                    <div style="margin-left: 10px;margin-top: 5px;"> cents</div>
+                  </div>
+
+                  <div style="display:flex">
+                    <div style="margin-right: 20px;margin-top: 5px;"> Speed Factor :</div>
+
+                    <el-slider style="width:100px" :step="0.5" :min="0" :max="4" v-model="currentSpeedFactor"
+                      @change="changeAudioBufferSourceNodeParams"></el-slider>
+
+                  </div>
+                </div>
+              </div>
+
+              <!-- AudioBufferSourceNode -->
+              <hr />
+
+
+              <!--   ChannelSplitterNode & ChannelMergeNode
+              https://stackoverflow.com/questions/20644328/using-channelsplitter-and-mergesplitter-nodes-in-web-audio-api  
+              -->
+
+              <div>
+                ChannelSplitterNode & ChannelMergeNode
+                <el-switch :disabled="currentMusicName==null" v-model="showLR" @change="handleLR" active-color="#13ce66"
+                  inactive-color="#ff4949">
+                </el-switch>
+                <div class="block" v-show="showLR">
+                  <el-button size="mini" @click="changeDirection(-1)">Left</el-button>
+                  <el-button size="mini" @click="changeDirection(0)">Center</el-button>
+                  <el-button size="mini" @click="changeDirection(1)">Right</el-button>
+                </div>
+              </div>
+              <hr />
+
+              <!-- ChannelSplitterNode & ChannelMergeNode -->
+
+
+              <!-- DynamicsCompressorNode：
+              https://developer.mozilla.org/en-US/docs/Web/API/DynamicsCompressorNode
+              -->
+              <div>
+                <a href="https://developer.mozilla.org/en-US/docs/Web/API/DynamicsCompressorNode" target="_blank">
+                  DynamicsCompressorNode：</a>
+                <el-switch :disabled="currentMusicName==null" v-model="showCompressor" @change="handleCompressor"
+                  active-color="#13ce66" inactive-color="#ff4949">
+                </el-switch>
+                <div v-show="showCompressor">
+                  <div style="display:flex">
+                    <div style="margin-right: 20px;margin-top: 5px;">Attack:</div>
+                    <el-slider v-model="compressorAttack" @change="changeCompressorParams" style="width:100px"
+                      :step="0.1" :max="1" :min="0">
+                    </el-slider>
+                  </div>
+                  <div style="display:flex">
+                    <div style="margin-right: 20px;margin-top: 5px;"> Knee:</div>
+                    <el-slider v-model="compressorKnee" @change="changeCompressorParams" style="width:100px" :max="40"
+                      :min="0">
+                    </el-slider>
+                  </div>
+                  <div style="display:flex">
+                    <div style="margin-right: 20px;margin-top: 5px;">Radio:</div>
+                    <el-slider v-model="compressorRatio" @change="changeCompressorParams" style="width:100px" :max="20"
+                      :min="0">
+                    </el-slider>
+                  </div>
+                  <div style="display:flex">
+                    <div style="margin-right: 20px;margin-top: 5px;">Reduction:</div>
+                    <el-slider v-model="compressorReduction" @change="changeCompressorParams" style="width:100px"
+                      :max="0" :min="-20">
+                    </el-slider>
+                  </div>
+                  <div style="display:flex">
+                    <div style="margin-right: 20px;margin-top: 5px;">Release:</div>
+                    <el-slider v-model="compressorRelease" @change="changeCompressorParams" style="width:100px" :max="1"
+                      :min="0">
+                    </el-slider>
+                  </div>
+                  <div style="display:flex">
+                    <div style="margin-right: 20px;margin-top: 5px;"> Threshold:</div>
+
+                    <el-slider v-model="compressorThreshold" @change="changeCompressorParams" style="width:100px"
+                      :max="0" :min="-100">
+                    </el-slider>
+                  </div>
+                </div>
+
+              </div>
+              <hr />
+              <!-- DynamicsCompressorNode： -->
+
+
+            </el-tab-pane>
+            <el-tab-pane label="Filter" name="second"
+              style=" width: 300px;color: #8ec3b0;font-weight:800;padding: 5px;">
+              <!--  BiquadFilter -->
+              <div>
+                Biquad Filter
+                <el-switch v-model="showBiquadFilter" @change="handleBiquadFilter" active-color="#13ce66"
+                  inactive-color="#ff4949" :disabled="currentMusicName==null">
+                </el-switch>
+                <div v-show="showBiquadFilter" style="margin-top:10px;margin-bottom: 10px;">
+                  <div>
+                    Type:
+                    <el-select v-model="currentBiquadFilterType" placeholder="Choose" size="mini"
+                      @change="changeBiquadFilter">
+                      <el-option v-for="item in biquadFilterOptions" :key="item.value" :label="item.label"
+                        :value="item.value">
+                      </el-option>
+                    </el-select>
+                  </div>
+                  <div>
+                    Detune:
+                    <el-slider :max="1000" :min="0" :step="10" style="width:200px" v-model="currentBiquadFilterDetune"
+                      @change="changeBiquadFilter"></el-slider>
+                  </div>
+                  <div>
+                    Frequency(Hz):
+                    <el-slider :max="20000" :min="0" :step="10" style="width:200px"
+                      v-model="currentBiquadFilterFrequence" @change="changeBiquadFilter"></el-slider>
+                  </div>
+                  <div
+                    v-show="(currentBiquadFilterType=='lowshelf')||(currentBiquadFilterType=='highshelf')||(currentBiquadFilterType=='peaking')">
+                    Gain(dB):
+                    <el-slider :max="100" :min="0" :step="10" style="width:200px" v-model="currentBiquadFilterGain"
+                      @change="changeBiquadFilter"></el-slider>
+                  </div>
+                  <div v-show="(currentBiquadFilterType!='lowshelf')&&(currentBiquadFilterType!='highshelf')">
+                    Q:
+                    <el-slider :max="1000" :min="0" :step="10" style="width:200px" v-model="currentBiquadFilterQ"
+                      @change="changeBiquadFilter"></el-slider>
+                  </div>
+
+                </div>
+              </div>
+              <!--  BiquadFilter -->
+              <hr />
+              <!-- IIRFilterNode 
+              https://developer.mozilla.org/en-US/docs/Web/API/IIRFilterNode
+              -->
+              <div>
+                IIRFilterNode
+                <el-switch v-model="showIIRFilterNode" @change="handleIIRFilterNode" active-color="#13ce66"
+                  inactive-color="#ff4949" :disabled="currentMusicName==null">
+                </el-switch>
+                <div>
+
+
+                </div>
+
+              </div>
+
+              <hr />
+              <!-- IIRFilterNode -->
+
+
+              <!-- Smoothing Filter worklet
+              -->
+
+              <div>
+                Smoothing Filter worklet:
+                <el-switch v-model="showSmoothingFilter" @change="handleSmoothingFilter" active-color="#13ce66"
+                  inactive-color="#ff4949" :disabled="currentMusicName==null">
+                </el-switch>
+
+                <div v-show="showSmoothingFilter">
+                  Time constant (ms)
+                  <el-slider :max="10" :min="0" :step="0.1" style="width:200px" v-model="smoothingParams"
+                    @change="changeSmoothingParams"></el-slider>
+                </div>
+              </div>
+              <hr />
+              <!-- Smoothing Filter workle -->
+            </el-tab-pane>
+
+          </el-tabs>
+
+
+
+        </div>
+      </el-col>
+      <!-- right part- audio effects and filters -->
+    </el-row>
+
+
+
+    <!-- Help -->
+    <el-dialog title="Help" :visible.sync="showHelp" width="60%" :before-close="handleClose">
+      <div style="color: #9ed5c5; font-weight: 800;font-size: 14px; ">
+        <div style="color: #9ed5c5; font-weight: 800;font-size: 16px;"> 1.Environment</div>
+        <p>
+
+
+          Operating System: Windows10<br />
+          IDE: Visual Studio Code<br />
+          UI frameworks: Vue2(https://v2.vuejs.org/), ElementUI(https://element.eleme.cn/#/en-US)<br />
+          Networking is required when testing the project, as some js files refer to online files (such as vue,
+          elementui)<br>
+          I test the project in FireFox browser.
+          I test the project in VScode and click "Open with Live Server" and get the url
+          "http://127.0.0.1:5501/MusicPlayer.html".
+          (If click project in the folders, some js files might not work)
+
+        </p>
+     
+        <div style="color: #9ed5c5; font-weight: 800;font-size: 16px;"> 2.Introduction</div>
+        <p>The left part is the play list. Uses are able to select audio files and click the file name to play it.
+        </p>
+        <p>The center part is the music box.
+          Uses are able to play, pause, refresh (stop the current song and play it from beginning), loop the current
+          song, play the last song and play the next song.
+          ​For visualizing the audio. There is an audio wave graph, a waveform graph and a frequency bar graph.
+        </p>
+
+
+        <p>The right part is to add audio effects and filters to the current audio.<br />
+          For audio effects, here are the audio effects and resources that I have used.​ <br />
+          DynamicsCompressorNode: https://developer.mozilla.org/en-US/docs/Web/API/DynamicsCompressorNode<br />
+          WaveShaperNode: https://developer.mozilla.org/en-US/docs/Web/API/WaveShaperNode<br />
+
+          DelayNode: https://developer.mozilla.org/en-US/docs/Web/API/DelayNode<br />
+          RandomNoiseNode: From the class demo<br />
+          ConvolverNode: from the class demo<br />
+          StereoPannerNode:https://developer.mozilla.org/en-US/docs/Web/API/StereoPannerNode/StereoPannerNode<br />
+          OscillatorNode: from the class demo<br />
+          AudioBufferSourceNode: https://developer.mozilla.org/en-US/docs/Web/API/AudioBufferSourceNode<br />
+        </p>
+
+        <p> For filters:
+          Biquad Filter: https://developer.mozilla.org/en-US/docs/Web/API/BiquadFilterNode<br />
+          IIRFilterNode: https://developer.mozilla.org/en-US/docs/Web/API/IIRFilterNode<br /></p>
+
+        <p>
+        </p>
+    
+      </div>
+
+    </el-dialog>
+    <!-- Help -->
+
+  </div>
+</body>
+<!-- need to connect the internet -->
+<!-- import Vue before Element -->
+<script src="https://unpkg.com/vue@2/dist/vue.js"></script>
+<!-- import JavaScript -->
+<script src="https://unpkg.com/element-ui/lib/index.js"></script>
+<!-- import jquery -->
+<script src="https://cdn.bootcss.com/jquery/3.3.1/jquery.min.js"></script>
+
+<script>
+
+
+  var example3 = new Vue({
+    el: '#example-3',
+
+    data: {
+
+      name: 'Vue.js',
+      activeIndex: '1',
+      isPlay: false,
+      isPause: false,
+      isLoop: false,
+      isRefresh: false,
+      isAdd20: false,
+      isMinus20: false,
+      isLast: false,
+      isNext: false,
+      // 表格
+      songsList: [],
+      currentRow: null,
+      currentDetune: 0,
+      currentSpeedFactor: 0,
+      // 表格
+      colors: [
+        { color: '#f56c6c', percentage: 20 },
+        { color: '#e6a23c', percentage: 40 },
+        { color: '#5cb87a', percentage: 60 },
+        { color: '#1989fa', percentage: 80 },
+        { color: '#6f7ad3', percentage: 100 }
+      ],
+      // 第一行
+      // 当前音乐
+      currentProgress: 0,
+      currentFileObject: null,
+      currentMusicName: null,
+      currentMusicPath: "/audio files/Zai Shui Yi Fang Vocal only.mp3",
+      // 第四行
+      currentVolume: 10,
+      currentSpeed: 50,
+      currentTune: 10,
+      currentPitch: 10,
+      setLoops: false,
+      // web audio对象
+      audio: "",
+      audioContext: "",
+      source: "",
+      volume: "",
+
+
+
+      // filter
+      //biquadFilter
+      analyser: null,
+      distortion: null,
+      gainNode: null,
+      biquadFilter: null,
+      biquadFilterOptions: [{
+        value: "lowpass",
+        label: 'lowpass'
+      }, {
+        value: "highpass",
+        label: 'highpass'
+      }, {
+        value: "lowshelf",
+        label: 'lowshelf'
+      }, {
+        value: "highshelf",
+        label: 'highshelf'
+      },
+      {
+        value: "peaking",
+        label: 'peaking'
+      },
+      {
+        value: "notch",
+        label: 'notch'
+      },
+      {
+        value: "allpass",
+        label: 'allpass'
+      }
+      ],
+      currentBiquadFilterType: "allpass",
+      currentBiquadFilterDetune: 100,
+      currentBiquadFilterFrequence: 1000,
+      currentBiquadFilterGain: 25,
+      currentBiquadFilterQ: 100,
+      showBiquadFilter: false,
+
+      // biquadFilter
+      //IIRFilterNode
+      showIIRFilterNode: false,
+      //IIRFilterNode
+
+      // Smoothing Filter worklet
+      showSmoothingFilter: false,
+      smoothingFilter: null,
+      smoothingParams: 0,
+
+      // Smoothing Filter worklet
+      // filter
+      // 右侧
+      activeName1: "first",
+      // audio effect开始
+
+
+
+      // DynamicsCompressorNode
+      // https://developer.mozilla.org/en-US/docs/Web/API/DynamicsCompressorNode/DynamicsCompressorNode
+      showCompressor: false,
+      compressor: null,
+      compressorAction: false,
+      compressorAttack: 0,
+      compressorKnee: 40,
+      compressorRatio: 12,
+      compressorReduction: 0,
+      compressorRelease: 0.25,
+      compressorThreshold: -50,
+      // DynamicsCompressorNode
+
+
+      // WaveShaper
+      WaveShaperNode: null,
+      distortion: null,
+      showWaveShaperNode: false,
+      currentOversample: "4x",
+      currentWaveShapperAmount: 400,
+      oversampleOptions: [
+        {
+          value: "none",
+          label: 'none'
+        },
+        {
+          value: "2x",
+          label: '2x'
+        },
+        {
+          value: "4x",
+          label: '4x'
+        }
+      ],
+      // WaveShaper
+
+
+
+      // DelayNode
+      showDelay: false,
+      currentDelay: 0,
+      delayNode: null,
+      cutoffFreq: 0,
+      feedback: null,
+      delayTime: 0,
+      filter: null,
+      // DelayNode
+
+
+
+      // RandomNoiseNode
+      randomNoiseNode: null,
+      showNoise: false,
+      addNoise: false,
+      // RandomNoiseNode
+
+
+      //  Web Audio Api Convolver 
+      impulseOptions: [{
+        value: "factory.hall.wav",
+        label: 'Factory Hall'
+      }, {
+        value: "pa.horn.in.hall.wav",
+        label: 'PA horn in hall'
+      }, {
+        value: "blaupunkt.tube.radio.wav",
+        label: 'Blaupunkt tube radio'
+      }, {
+        value: "church.schellingwoude.wav",
+        label: 'Church Schellingwoude'
+      },
+      {
+        value: "coalhod.wav",
+        label: 'Coalhod'
+      },
+      {
+        value: "vacuum.cleaner.tube.wav",
+        label: 'Vacuum cleaner tube'
+      },
+      {
+        value: "70.philips.box.stereo.wav",
+        label: '70 Philips Box'
+      },
+      {
+        value: "washing.machine.wav",
+        label: 'Washing machine'
+      },
+      {
+        value: "tin.can.wav",
+        label: 'Tin Can'
+      }],
+      audioElement: null,
+      carrier: null,
+      currentConvolver: "",
+      audioElement: null,
+      source: null,
+      convolver: null,
+      dry: null,
+      wet: null
+      ,
+      currentDryWet: 50,
+      showConvolver: false,
+      //  Web Audio Api Convolver 
+      // StereoPannerNose
+
+      mousepan: false,
+      pannner: null,
+      showSpaceLREffect: false,
+      currentLRSpaceParams: 1,
+      LRMinValue: -1,
+      LRMaxValue: 1,
+      // StereoPannerNose
+
+
+      // OscillatorNode
+      showOscillatorNode: false,
+      Tone: null,
+      Amplitude: null,
+      OscillatorFrequency: 440,
+      OscillatorNodeAmplitude: 20,
+      OscillatorType: "sine",
+      oscillatorTypeOptions: [
+        {
+          value: "sine",
+          label: 'sine'
+        },
+        {
+          value: "square",
+          label: 'square'
+        },
+        {
+          value: "sawtooth",
+          label: 'sawtooth'
+        },
+        {
+          value: "triangle",
+          label: 'triangle'
+        },
+      ],
+      OscillatorDetune: "",
+      notesOptions: [
+        {
+          value: 0,
+          label: 'unison'
+        },
+        {
+          value: 300,
+          label: 'minor-third'
+        },
+        {
+          value: 600,
+          label: 'tritone'
+        },
+        {
+          value: 900,
+          label: 'minor-third'
+        },
+        {
+          value: 1200,
+          label: 'octave'
+        },
+
+      ],
+      // OscillatorNode
+      // AudioBufferSourceNode 
+      showAudioBufferSourceNodeParams: false,
+      // AudioBufferSourceNode 
+
+
+
+      // audio effect结束
+      // 上传文件开始
+      fileList: [],
+      tableData: [],
+      // 测试
+      audioCtx: null,
+      audioBufferSourceNode: null,
+      // 上传文件结束
+
+      // 可视化1开始
+      canvas1: null,
+      canvasCtx1: null,
+      analyserDraw: null,
+      canvasWidth1: 1000,
+      canvasHeight1: 100,
+      // 可视化1结束
+      // 可视化2开始
+      // Global Variables for Audio
+      canvas2: null,
+      canvasCtx2: null,
+      audioBuffer: null,
+      analyserNode: null,
+      javascriptNode: null,
+      audioData: null,
+      audioPlaying: false,
+      sampleSize: 1024, // number of samples to collect before analyzing data
+      amplitudeArray: [],   // array to hold time domain data
+
+      // This must be hosted on the same server as this page - otherwise you get a Cross Site Scripting error
+      //  audioUrl = "/audio files/Zai Shui Yi Fang Vocal only.mp3";
+
+      // Global Variables for the Graphics
+      canvasWidth: 1000,
+      canvasHeight: 150,
+
+      // 可视化2结束
+      // 可视化3开始
+      canvas3: null,
+      canvasCtx3: null,
+      analyserDraw: null,
+      canvasWidth3: 1000,
+      canvasHeight3: 150,
+      // 可视化3结束
+
+      // 左右耳道开始
+      showLR: false,
+      volumeNodeL: null,
+      volumeNodeR: null,
+      splitterNode: null,
+      mergerNode: null,
+      // 左右二道结束
+      // 下载文件开始
+      offlineAudioCtx: null,
+      // 下载文件结束
+      currentTime: null,
+
+
+      timer: null,
+      totalTime: 100,
+      // 测试
+      flipped: false,
+      panNode: null,
+      panX: 0,
+      panY: 0,
+      panZ: 0,
+      // 测试
+      showHelp: false,
+      volumeGainNode: null,
+
+      // ConstantSourceSquareWave
+      constantNode: null,
+      currentF: 0,
+      showConstantSourceSquareWave: false
+      // ConstantSourceSquareWave
+    },
+    // 在 `methods` 对象中定义方法
+    mounted() {
+
+      // 定时刷新任务进度
+      // this.timer = setInterval(this.getCurrentTime, 10000);
+    },
+    computed: {
+
+    },
+    watch: {
+
+    }
+    ,
+    methods: {
+      // 左侧上传文件开始
+      // 上传文件开始
+      submitUpload() {
+        this.$refs.upload.submit();
+      },
+      handlePreview(file) {
+        this.currentMusicName = file.name;
+        this.currentFileObject = file.raw
+        this.playMusic(file.name)
+      },
+      changeFileList(file, fileList) {
+        this.playMusic(file)
+      },
+      choiceFile(file, fileList) {
+        this.songsList.push(file.raw);
+        console.log(this.songsList)
+      },
+      // 左侧上传文件结束
+
+
+
+      // 音乐箱子开始
+      handleShowHelp() {
+        this.showHelp = true;
+      },
+      handleClose() {
+        this.showHelp = false;
+      },
+      // 第一行基础操作
+      // 播放音乐
+      handlePlayMusic() {
+        if (this.currentMusicName == null) {
+          this.$message({
+            message: 'Please select a song',
+            type: 'warning'
+          });
+          return;
+        }
+        this.isPlay = !this.isPlay
+        if (this.currentTime == null) {
+          this.playMusic(this.currentMusicName, 0)
+        } else {
+          this.playMusic(this.currentMusicName, this.currentTime)
+        }
+      },
+      // 暂停音乐
+      handleStopMusic() {
+        if (this.currentMusicName == null) {
+          this.$message({
+            message: 'Please select a song',
+            type: 'warning'
+          });
+          return;
+        }
+        this.isPause = !this.isPause
+        this.source.stop()
+        this.currentTime = this.audioContext.currentTime;
+      },
+      // 暂停并且重新播放
+      handleStopAndRefreshMusic() {
+        if (this.currentMusicName == null) {
+          this.$message({
+            message: 'Please select a song',
+            type: 'warning'
+          });
+          return;
+        }
+        // this.audio.stop();
+        // this.audio.currentTime = 0;
+        this.isRefresh = !this.isRefresh
+        this.playMusic(this.currentMusicName)
+      },
+      // 上一首音乐
+      handlePlayLastMusic() {
+        if (this.currentMusicName == null) {
+          this.$message({
+            message: 'Please select a song',
+            type: 'warning'
+          });
+          return;
+        }
+        this.isLast = !this.isLast
+        if (this.songsList.length == 0) {
+          this.$message({
+            message: 'Not exist',
+            type: 'warning'
+          });
+        }
+        for (var i = 0; i < this.songsList.length; i++) {
+          if (this.currentMusicName == this.songsList[i].name) {
+            if (i == 0) {
+              this.$message({
+                message: 'It is the first song',
+                type: 'warning'
+              });
+              return;
+            } else {
+              this.currentMusicName = this.songsList[i - 1].name;
+              this.playMusic(this.currentMusicName);
+              return;
+            }
+          }
+        }
+      },
+      // 下一首
+      handlePlayNextMusic() {
+        if (this.currentMusicName == null) {
+          this.$message({
+            message: 'Please select a song',
+            type: 'warning'
+          });
+          return;
+        }
+        this.isNext = !this.isNext
+        if (this.songsList.length == 0) {
+          this.$message({
+            message: 'No songs in the playlist',
+            type: 'warning'
+          });
+        }
+        for (var i = 0; i < this.songsList.length; i++) {
+          if (this.currentMusicName == this.songsList[i].name) {
+            if (i == this.songsList.length - 1) {
+
+              this.$message({
+                message: 'It is the last song',
+                type: 'warning'
+              });
+              return;
+            } else {
+              this.currentMusicName = this.songsList[i + 1].name;
+              this.playMusic(this.currentMusicName);
+              return;
+            }
+          }
+        }
+      },
+      // 循环
+      handleLoops() {
+        if (this.currentMusicName == null) {
+          this.$message({
+            message: 'Please select a song',
+            type: 'warning'
+          });
+          return;
+        }
+        this.isLoop = !this.isLoop
+        this.setLoops = !this.setLoops
+      },
+
+
+      // 第一行基础操作
+
+      // 播放音乐开始
+      playMusic(fileName, currentTime = 0) {
+        console.log(this.songsList[0].name)
+        file = null;
+        for (var i = 0; i < this.songsList.length; i++) {
+          if (fileName == this.songsList[i].name) {
+            file = this.songsList[i]
+          }
+        }
+        let fr = new FileReader();
+        let that = this;
+        this.audioContext =
+          // new AudioContext();
+          new (window.AudioContext || window.webkitAudioContext)();
+
+        fr.onload = (e) => {
+          this.audioContext.decodeAudioData(e.target.result).then((buffer) => {
+
+            if (this.source != null) {
+              this.source.stop();
+            }
+
+            this.source = this.audioContext.createBufferSource();
+            this.source.buffer = buffer
+            // 设置音量节点并且连接
+            // this.volume = this.audioContext.createGain();
+            // this.volume.gain.value = this.currentVolume / 100;//音量
+            // this.source.connect(this.volume);
+            // this.volume.connect(this.audioContext.destination);
+
+            if (this.audioContext.state == "suspended") {
+              this.audioContext.resume();
+            }
+            this.source.loop = this.setLoops
+            // http://web.h3399.cn/AudioBufferSourceNode.htm
+            this.source.playbackRate.value = this.currentSpeedFactor
+            this.source.detune.value = this.currentDetune;
+            this.source.start(0, currentTime);
+            this.totalTime = this.source.buffer.duration
+
+            // 音量
+            this.volume = this.audioContext.createGain();
+            this.volume.gain.value = 0.3;//音量
+            this.source.connect(this.volume);
+            this.volume.connect(this.audioContext.destination);
+
+            // 展示音频可视化
+
+
+            // change position (0//start -> 0.5//middle -> 1//end) 
+            // and zoom (0.5//full -> 400//zoomed) as you wish
+            this.drawAudioWave(0.5, 1)//没问题
+            this.drawAudioSquares();
+            this.drawAudioLines();//正常
+            // 可视化 
+
+
+
+          })
+        }
+        fr.readAsArrayBuffer(file);
+
+      },
+
+
+      drawAudioLines() {
+        this.canvas3 = document.getElementById("casvased3");
+        this.canvasCtx3 = this.canvas3.getContext("2d");
+        this.analyserDraw = this.audioContext.createAnalyser();
+        //fftSize (Fast Fourier Transform) 是快速傅里叶变换，一般情况下是固定值2048。具体作用是什么我也不太清除，但是经过研究，这个值可以决定音频频谱的密集程度。值大了，频谱就松散，值小就密集。
+        this.analyserDraw.fftSize = 256;
+        // 连接节点,audioContext.destination是音频要最终输出的目标，
+        // 我们可以把它理解为声卡。所以所有节点中的最后一个节点应该再
+        // 连接到audioContext.destination才能听到声音。
+        this.source.connect(this.analyserDraw);
+        this.analyserDraw.connect(this.audioContext.destination);
+        // 可视化 创建数据
+        var bufferLength = this.analyserDraw.frequencyBinCount;
+
+        var dataArray = new Uint8Array(bufferLength);
+
+        this.canvasCtx3.clearRect(0, 0, this.canvasWidth3, this.canvasHeight3);
+        let that = this;
+        function draw() {
+          var drawVisual = requestAnimationFrame(draw);
+          that.analyserDraw.getByteFrequencyData(dataArray);
+          that.canvasCtx3.fillStyle = 'rgb(158, 213, 197)';
+          //canvasCtx.fillStyle = ;
+          that.canvasCtx3.fillRect(0, 0, that.canvasWidth3, that.canvasHeight3);
+          var barWidth = (that.canvasWidth1 / bufferLength) * 2.5;
+          var barHeight;
+          var x = 0;
+          for (var i = 0; i < bufferLength; i++) {
+            barHeight = dataArray[i];
+            //随机数0-255   Math.floor(Math.random()*255)  
+            // 随机数  10*Math.random()
+            // that.canvasCtx3.fillStyle = 'rgb(' + (barHeight + 100) + ',' + Math.floor(Math.random() * (20 - 120) + 120) + ',' + Math.floor(Math.random() * (10 - 50) + 50) + ')';
+            that.canvasCtx3.fillStyle = 'rgb(255,255,255)';
+            that.canvasCtx3.fillRect(x, that.canvasHeight3 - barHeight / 2, barWidth, barHeight / 2);
+            x += barWidth + 1;
+          }
+        };
+
+        draw();
+      },
+      drawAudioSquares() {
+        // 可视化2开始
+        this.canvas2 = document.getElementById("casvased2");
+        this.ctx = this.canvas2.getContext("2d");
+        this.setupAudioNodes();
+        let that2 = this;
+        this.javascriptNode.onaudioprocess = function () {
+          // get the Time Domain data for this sample
+          that2.analyserNode.getByteTimeDomainData(that2.amplitudeArray);
+          // draw the display if the audio is playing
+          // if (this.audioPlaying == true) {
+          requestAnimFrame(that2.drawTimeDomain);
+          // }
+        }
+        // 可视化2结束
+      },
+
+
+
+
+      // 可视化1结束
+      // 可视化2开始
+      setupAudioNodes() {
+
+        this.analyserNode = this.audioContext.createAnalyser();
+        this.javascriptNode = this.audioContext.createScriptProcessor(this.sampleSize, 1, 1);
+
+        // Create the array for the data values
+        this.amplitudeArray = new Uint8Array(this.analyserNode.frequencyBinCount);
+
+        // Now connect the nodes together
+        this.source.connect(this.audioContext.destination);
+        this.source.connect(this.analyserNode);
+        this.analyserNode.connect(this.javascriptNode);
+        this.javascriptNode.connect(this.audioContext.destination);
+      },
+
+      onError(e) {
+        console.log(e);
+      },
+
+      drawTimeDomain() {
+        this.clearCanvas();
+        for (var i = 0; i < this.amplitudeArray.length; i++) {
+          var value = this.amplitudeArray[i] / 256;
+          var y = this.canvasHeight - (this.canvasHeight * value) - 1;
+          this.ctx.fillStyle = '#ffffff';
+          this.ctx.fillRect(i, y, 1, 1);
+        }
+      },
+
+      clearCanvas() {
+        this.ctx.clearRect(0, 0, this.canvasWidth, this.canvasHeight);
+      },
+      // 可视化2结束
+
+
+
+
+      // 可视化音轨开始
+      drawAudioWave(zoom, pos) {
+
+        this.canvas1 = document.getElementById("casvased1");
+        this.canvasCtx1 = this.canvas1.getContext("2d");
+        // const canvasCtx = canvas.getContext("2d")
+        const width = this.canvasWidth1
+        const height = this.canvasHeight1
+        this.canvasCtx1.clearRect(0, 0, width, height)
+        this.canvasCtx1.fillStyle = "rgb(255, 255, 255)"
+
+        // calculate displayed part of audio 
+        // and slice audio buffer to only process that part
+        const bufferLength = this.source.buffer.length
+        const zoomLength = bufferLength / zoom
+        const start = Math.max(0, bufferLength * pos - zoomLength / 2)
+        const end = Math.min(bufferLength, start + zoomLength)
+        const rawAudioData = this.source.buffer.getChannelData(0).slice(start, end)
+
+        // process chunks corresponding to 3 pixel width
+        const chunkSize = Math.max(3, Math.floor(rawAudioData.length / width))
+        const values = []
+        for (let x = 0; x < width; x++) {
+          const start = x * chunkSize
+          const end = start + chunkSize
+          const chunk = rawAudioData.slice(start, end)
+          // calculate the total positive and negative area
+          let positive = 0
+          let negative = 0
+          chunk.forEach(val =>
+            val > 0 && (positive += val) || val < 0 && (negative += val)
+          )
+          // make it mean (this part makes dezommed audio smaller, needs improvement)
+          negative /= chunk.length
+          positive /= chunk.length
+          // calculate amplitude of the wave
+          chunkAmp = -(negative - positive)
+          // draw the bar corresponding to this pixel
+          this.canvasCtx1.fillRect(
+            x,
+            height / 2 - positive * height,
+            1,
+            Math.max(1, chunkAmp * height)
+          )
+        }
+      },
+      // 可视化音轨结束
+
+
+
+
+      // 播放音乐结束
+      // 音乐盒子结束
+
+
+
+      // 右侧
+      // audio effect开始
+      // DynamicsCompressorNode
+      handleCompressor() {
+        if (this.showCompressor) {
+          this.compressor = this.audioContext.createDynamicsCompressor();
+          this.compressor.threshold.setValueAtTime(this.compressorThreshold, this.audioContext.currentTime);
+          this.compressor.knee.setValueAtTime(this.compressorKnee, this.audioContext.currentTime);
+          this.compressor.ratio.setValueAtTime(this.compressorRatio, this.audioContext.currentTime);
+          this.compressor.attack.setValueAtTime(this.compressorAttack, this.audioContext.currentTime);
+          this.compressor.release.setValueAtTime(this.compressorRelease, this.audioContext.currentTime);
+
+          this.source.connect(this.compressor);
+          this.compressor.connect(this.audioContext.destination);
+          this.source.connect(this.audioContext.destination);
+        } else {
+          this.source.disconnect(this.compressor);
+          this.compressor.disconnect(this.audioContext.destination);
+          this.source.connect(this.audioContext.destination);
+        }
+      },
+
+      changeCompressorParams() {
+        this.compressor.attack.value = this.compressorAttack
+        this.compressor.knee.value = this.compressorKnee
+        this.compressor.ratio.value = this.compressorRatio
+        this.compressor.reduction.value = this.compressorReduction
+        this.compressor.release.value = this.compressorRelease
+        this.compressor.threshold.value = this.compressorThreshold
+      },
+      // DynamicsCompressorNode
+
+      // WaveShaperNode
+      handleWaveShapper() {
+
+        if (this.showWaveShaperNode) {
+          this.distortion = this.audioContext.createWaveShaper();
+          this.distortion.curve = this.makeDistortionCurve(this.currentWaveShapperAmount);
+          this.distortion.oversample = this.currentOversample
+          this.source.connect(this.distortion);
+          this.source.connect(this.audioContext.destination);
+          this.distortion.connect(this.audioContext.destination)
+        } else {
+          this.distortion.disconnect(this.audioContext.destination)
+          this.source.disconnect(this.distortion);
+          this.source.connect(this.audioContext.destination);
+
+        }
+      },
+      changeWaveShapperValue() {
+        this.distortion.curve = this.makeDistortionCurve(this.currentWaveShapperAmount);
+        this.distortion.oversample = this.currentOversample
+      },
+      makeDistortionCurve(amount) {
+        const k = typeof amount === "number" ? amount : 50;
+        const n_samples = 44100;
+        const curve = new Float32Array(n_samples);
+        const deg = Math.PI / 180;
+
+        for (let i = 0; i < n_samples; i++) {
+          const x = (i * 2) / n_samples - 1;
+          curve[i] = ((3 + k) * x * 20 * deg) / (Math.PI + k * Math.abs(x));
+        }
+        return curve;
+      },
+      // WaveShaperNode
+
+
+      // DelayNode
+      handleDelay() {
+        if (this.showDelay) {
+          this.delayNode = this.audioContext.createDelay();
+          this.delayNode.delayTime.value = this.delayTime;
+          this.source.connect(this.delayNode);
+          this.source.connect(this.audioContext.destination);
+          this.delayNode.connect(this.audioContext.destination)
+        } else {
+          this.source.disconnect(this.delayNode);
+
+          this.delayNode.disconnect(this.audioContext.destination)
+          this.source.connect(this.audioContext.destination);
+          this.delayTime = 0
+        }
+
+      },
+      changeDelay() {
+        this.delayNode.delayTime.value = this.delayTime / 100;
+      },
+      // DelayNode
+
+
+
+
+
+      // randomNoiseNode
+
+      async handleNoise() {
+        if (this.showNoise) {
+          await this.audioContext.audioWorklet.addModule("random-noise-processor.js");
+          this.randomNoiseNode = new AudioWorkletNode(
+            this.audioContext,
+            "random-noise-processor"
+          );
+          this.randomNoiseNode.connect(this.audioContext.destination);
+        } else {
+          this.randomNoiseNode.disconnect(this.audioContext.destination);
+        }
+      },
+      // randomNoiseNode
+
+
+
+      //ConvolverNode
+      handleConvolverEffect() {
+
+
+        if (this.showConvolver) {
+
+          this.convolver = this.audioContext.createConvolver();
+          this.dry = this.audioContext.createGain();
+          this.wet = this.audioContext.createGain();
+
+          this.source.connect(this.convolver);
+
+          this.convolver.connect(this.wet);
+          this.source.connect(this.dry);
+
+          this.dry.connect(this.audioContext.destination);
+          this.wet.connect(this.audioContext.destination)
+          this.volume.connect(this.audioContext.destination);
+        } else {
+          this.source.disconnect(this.convolver);
+
+          this.convolver.disconnect(this.wet);
+          this.source.disconnect(this.dry);
+
+          this.dry.disconnect(this.audioContext.destination);
+          this.wet.disconnect(this.audioContext.destination)
+          this.volume.connect(this.audioContext.destination);
+        }
+      },
+
+      loadImpulse(fileName) {
+        var url = "http://files.andre-michelle.com/impulse/" + fileName;
+        var request = new XMLHttpRequest();
+        request.open("GET", url, true);
+        request.responseType = "arraybuffer";
+        let that = this
+        request.onload = function () {
+          that.audioContext.decodeAudioData(
+            request.response,
+            function (buffer) {
+              that.convolver.buffer = buffer;
+            },
+            function (e) {
+              console.log(e);
+            }
+          );
+        };
+        request.onerror = function (e) {
+          console.log(e);
+        };
+        request.send();
+      },
+      mix(value) {
+        this.dry.gain.value = 1.0 - value;
+        this.wet.gain.value = value;
+      },
+      changeDryWet(val) {
+        this.currentDryWet = val
+        this.mix(this.currentDryWet / 100)
+      },
+      // ConvolverNode
+
+
+      // StereoPannerNose
+
+      // setup sound, loop, and connect to destination
+      setupSpaceSound() {
+        if (this.showSpaceLREffect) {
+          // this.pannner = this.audioContext.createStereoPanner();
+          // this.pannner.pan.value =1;
+          // this.source.connect(this.pannner);
+
+          // this.source.connect(this.audioContext.destination);
+          // this.pannner.connect(this.audioContext.destination);
+          this.pannner = new StereoPannerNode(this.audioContext);
+          this.source.connect(this.pannner);
+          this.pannner.connect(this.audioContext.destination);
+          this.source.connect(this.audioContext.destination);
+          this.pannner.pan.value = 1;
+        } else {
+          this.source.disconnect(this.pannner);
+          this.pannner.disconnect(this.audioContext.destination);
+          this.source.connect(this.audioContext.destination);
+          this.currentLRSpaceParams = 1
+        }
+
+      },
+      changeLRSpaceParams() {
+        this.pannner.pan.value = this.currentLRSpaceParams;
+      },
+      formatLRSpaceParams(val) {
+        return val;
+      },
+      // StereoPannerNose
+
+
+
+
+
+      // OscillatorNode
+      handleOscillatorNode() {
+
+        if (this.showOscillatorNode) {
+          this.Tone = new OscillatorNode(this.audioContext)
+          this.Amplitude = new GainNode(this.audioContext, { gain: 0.2 })
+          this.Tone.type = "sine"
+          //Set up audio graph
+          this.Tone.connect(this.Amplitude)
+          this.Amplitude.connect(this.audioContext.destination)
+          this.Tone.start()
+        } else {
+          this.Tone.disconnect(this.Amplitude)
+          this.Amplitude.disconnect(this.audioContext.destination)
+        }
+
+
+
+      },
+      changeOscillatorNodeParams() {
+        //User interface callbacks
+        this.Tone.frequency.value = this.OscillatorFrequency
+        this.Amplitude.gain.value = this.OscillatorNodeAmplitude / 100
+        this.Tone.type = this.OscillatorType
+        this.Tone.detune.value = Number(this.OscillatorDetune)
+      },
+
+      // OscillatorNode
+
+
+      // AudioBufferSourceNodeParams
+      handleshowAudioBufferSourceNodeParams() {
+        if (!this.showAudioBufferSourceNodeParams) {
+          this.currentDetune = 0;
+          this.currentSpeedFactor = 0;
+          this.changeAudioBufferSourceNodeParams();
+        }
+      },
+
+
+
+      changeAudioBufferSourceNodeParams() {
+        this.source.detune.value = Number(this.currentDetune)
+        this.source.playbackRate.value = Number(this.currentSpeedFactor)
+
+      },
+
+
+
+
+      // AudioBufferSourceNodeParams
+
+      playLR1() {
+
+        let context = new AudioContext()
+        let source = context.createOscillator()
+        source.start()
+        let panNode = context.createStereoPanner()
+
+        panNode.pan.value = -1
+
+        this.source.connect(panNode).connect(this.audioContext.destination)
+      },
+
+
+
+      // audio effect结束
+      // filter开始
+      // BiquadFilter
+      handleBiquadFilter() {
+        if (this.showBiquadFilter) {
+          // this.analyser = this.audioContext.createAnalyser();
+          // this.distortion = this.audioContext.createWaveShaper();
+          // this.gainNode = this.audioContext.createGain();
+          this.biquadFilter = this.audioContext.createBiquadFilter();
+          this.source.connect(this.biquadFilter);
+          this.biquadFilter.connect(this.audioContext.destination);
+          this.source.connect(this.audioContext.destination);
+          // this.source.connect(this.analyser);
+          // this.analyser.connect(this.distortion);
+          // this.distortion.connect(this.biquadFilter);
+          // this.biquadFilter.connect(this.gainNode);
+          // this.gainNode.connect(this.audioContext.destination);
+        } else {
+          //TODO
+          // 断开
+          this.source.disconnect(this.biquadFilter);
+          this.biquadFilter.disconnect(this.audioContext.destination);
+          this.source.connect(this.audioContext.destination);
+        }
+      },
+      changeBiquadFilter() {
+
+        this.biquadFilter.type = this.currentBiquadFilterType;
+        this.biquadFilter.frequency.value = Number(this.currentBiquadFilterFrequence)
+        this.biquadFilter.gain.value = Number(this.currentBiquadFilterGain)
+        this.biquadFilter.detune.value = Number(this.currentBiquadFilterDetune)
+        this.biquadFilter.Q.value = Number(this.currentBiquadFilterQ)
+        // this.biquadFilter.type = this.currentBiquadFilterType;
+        // this.biquadFilter.frequency.setValueAtTime(this.currentBiquadFilterFrequence, this.audioContext.currentTime);
+        // this.biquadFilter.gain.setValueAtTime(this.currentBiquadFilterGain, this.audioContext.currentTime);
+        // this.biquadFilter.detune.setValueAtTime(this.currentBiquadFilterDetune, this.audioContext.currentTime);
+        // this.biquadFilter.Q.setValueAtTime(this.currentBiquadFilterQ, this.audioContext.currentTime);
+
+      },
+      // BiquadFilter
+
+
+
+      // IIRFilterNode
+      // https://developer.mozilla.org/en-US/docs/Web/API/IIRFilterNode
+      handleIIRFilterNode() {
+
+
+        let FF = [0.00011314198115, 0.00033942594344, 0.00033942594344, 0.00011314198115],
+          FB = [3.88183838983223, -11.15778893207433, 10.70022228815451, -3.42336661006324]
+        const nFreqs = 30
+        let Freqs = new Float32Array(nFreqs),
+          Mags = new Float32Array(nFreqs),
+          Phases = new Float32Array(nFreqs)
+        Freqs = Freqs.map(function (item, index) { return Math.pow(1.4, index) })
+        const iirfilter = this.audioContext.createIIRFilter(FF, FB)
+
+        this.source.connect(this.audioContext.destination)
+
+        this.source.disconnect()
+        if (this.showIIRFilterNode) {
+          this.source.connect(iirfilter).connect(this.audioContext.destination)
+        } else {
+          this.source.connect(this.audioContext.destination)
+          this.playMusic(this.currentMusicName, this.audioContext.currentTime)
+        }
+
+
+        iirfilter.getFrequencyResponse(Freqs, Mags, Phases)
+
+
+      },
+      // IIRFilterNode
+
+
+
+      // filter结束
+
+
+
+
+      // 左右耳道开始
+      handleLR() {
+
+        this.volumeNodeL = new GainNode(this.audioContext);
+        this.volumeNodeR = new GainNode(this.audioContext);
+
+        this.volumeNodeL.gain.value = 2;
+        this.volumeNodeR.gain.value = 2;
+
+        const channelsCount = 2; // or read from: 'audioSource.channelCount'
+
+        this.splitterNode = new ChannelSplitterNode(this.audioContext, { numberOfOutputs: channelsCount });
+        this.mergerNode = new ChannelMergerNode(this.audioContext, { numberOfInputs: channelsCount });
+
+        this.source.connect(this.splitterNode);
+
+        this.splitterNode.connect(this.volumeNodeL, 0); // connect OUTPUT channel 0
+        this.splitterNode.connect(this.volumeNodeR, 1); // connect OUTPUT channel 1
+
+        this.volumeNodeL.connect(this.mergerNode, 0, 0); // connect INPUT channel 0
+        this.volumeNodeR.connect(this.mergerNode, 0, 1); // connect INPUT channel 1
+
+        this.mergerNode.connect(this.audioContext.destination);
+      },
+      changeDirection(val) {
+        console.log(val)
+        this.volumeNodeL.gain.value = 1 - val;
+        this.volumeNodeR.gain.value = 1 + val;
+      },
+
+      // 左右耳道结束
+      // 导出开始
+      saveAudio() {
+        if (this.currentMusicName == null) {
+          this.$message({
+            message: 'Please select a song',
+            type: 'warning'
+          });
+          return;
+        }
+
+        this.offlineAudioCtx = new OfflineAudioContext({
+          numberOfChannels: 2,
+          length: this.audioContext.sampleRate * this.source.buffer.duration,
+          sampleRate: this.audioContext.sampleRate,
+        });
+        make_download(this.source.buffer, this.offlineAudioCtx.length);
+
+      },
+
+
+      // 导出结束
+
+
+      getCurrentTime() {
+
+        this.currentProgress = this.audioContext.currentTime
+        this.currentTime = this.audioContext.currentTime
+
+      },
+      changeProgress(val) {
+        this.currentProgress = val;
+        this.playMusic(this.currentMusicName, val)
+
+
+      },
+
+
+
+      // pannernode
+      // Smoothing Filter worklet
+      handleSmoothingFilter() {
+        if (this.showSmoothingFilter) {
+          Promise.all([
+
+            this.audioContext.audioWorklet.addModule('smoothingWorklet.js')
+          ]).then(() => {
+
+            this.smoothingFilter = new AudioWorkletNode(this.audioContext, 'smoothing-filter')
+            this.smoothingFilter.parameters.get('timeConstant').value = 1
+            this.source.connect(this.smoothingFilter).connect(this.audioContext.destination)
+          })
+        } else {
+          this.smoothingParams = 1
+          this.source.disconnect(this.smoothingFilter);
+          this.source.connect(this.audioContext.destination)
+        }
+
+      },
+      changeSmoothingParams(val) {
+        this.smoothingFilter.parameters.get('timeConstant').value = val
+      },
+      // Smoothing Filter worklet
+
+      changePannerNodeXYZValue() {
+        this.panNode.positionX.value = this.panX
+        this.panNode.positionY.value = this.panY
+        this.panNode.positionZ.value = this.panZ
+      },
+      // PannerNode
+
+
+
+    },
+
+
+
+  })
+  window.requestAnimFrame = (function () {
+    return window.requestAnimationFrame ||
+      window.webkitRequestAnimationFrame ||
+      window.mozRequestAnimationFrame ||
+      function (callback, element) {
+        window.setTimeout(callback, 1000 / 60);
+      };
+  })();
+  function make_download(abuffer, total_samples) {
+
+    // get duration and sample rate
+    var duration = abuffer.duration,
+      rate = abuffer.sampleRate,
+      offset = 0;
+
+    var new_file = URL.createObjectURL(bufferToWave(abuffer, total_samples));
+    console.log(new_file);
+
+    // var download_link = document.getElementById("download_link");
+    var download_link = document.createElement('a');
+    download_link.href = new_file;
+    var name = generateFileName();
+    download_link.download = name;
+
+    document.body.appendChild(download_link);
+    download_link.click();
+    // 移除元素
+    document.body.removeChild(download_link);
+    // 释放blob对象
+    window.URL.revokeObjectURL(new_file);
+  }
+
+  function generateFileName() {
+    return "compressed.wav";
+  }
+
+  function bufferToWave(abuffer, len) {
+    var numOfChan = abuffer.numberOfChannels,
+      length = len * numOfChan * 2 + 44,
+      buffer = new ArrayBuffer(length),
+      view = new DataView(buffer),
+      channels = [], i, sample,
+      offset = 0,
+      pos = 0;
+
+    // write WAVE header
+    setUint32(0x46464952);                         // "RIFF"
+    setUint32(length - 8);                         // file length - 8
+    setUint32(0x45564157);                         // "WAVE"
+
+    setUint32(0x20746d66);                         // "fmt " chunk
+    setUint32(16);                                 // length = 16
+    setUint16(1);                                  // PCM (uncompressed)
+    setUint16(numOfChan);
+    setUint32(abuffer.sampleRate);
+    setUint32(abuffer.sampleRate * 2 * numOfChan); // avg. bytes/sec
+    setUint16(numOfChan * 2);                      // block-align
+    setUint16(16);                                 // 16-bit (hardcoded in this demo)
+
+    setUint32(0x61746164);                         // "data" - chunk
+    setUint32(length - pos - 4);                   // chunk length
+
+    // write interleaved data
+    for (i = 0; i < abuffer.numberOfChannels; i++)
+      channels.push(abuffer.getChannelData(i));
+
+    while (pos < length) {
+      for (i = 0; i < numOfChan; i++) {             // interleave channels
+        sample = Math.max(-1, Math.min(1, channels[i][offset])); // clamp
+        sample = (0.5 + sample < 0 ? sample * 32768 : sample * 32767) | 0; // scale to 16-bit signed int
+        view.setInt16(pos, sample, true);          // write 16-bit sample
+        pos += 2;
+      }
+      offset++                                     // next source sample
+    }
+
+    // create Blob
+    return new Blob([buffer], { type: "audio/wav" });
+
+    function setUint16(data) {
+      view.setUint16(pos, data, true);
+      pos += 2;
+    }
+
+    function setUint32(data) {
+      view.setUint32(pos, data, true);
+      pos += 4;
+    }
+  }
+</script>
+
+</html>

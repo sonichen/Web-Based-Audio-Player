@@ -1,0 +1,127 @@
+/* 布局开始 */
+html,
+body,
+#app {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  min-width: 1366px;
+  background-color: #8ec3b0;
+}
+
+.el-row {}
+
+.el-col {
+  border-radius: 4px;
+}
+
+.bg-purple-dark {
+  background: #99a9bf;
+}
+
+.bg-purple {
+  background: #d3dce6;
+}
+
+.bg-purple-light {
+  background: #e5e9f2;
+}
+
+.grid-content {
+  border-radius: 4px;
+  min-height: 36px;
+}
+
+.grid-content1 {
+  border-radius: 4px;
+  min-height: 36px;
+}
+
+.row-bg {
+  padding: 10px 0;
+  background-color: #f9fafc;
+}
+
+.milky {
+  font-size: 60px;
+  /*设置文字大小*/
+  color: #8ec3b0;
+  /*设置文字颜色*/
+  text-shadow: 0 8px 10px #bcead5;
+  /*设置文字阴影*/
+  font-weight: bolder;
+  /*设置文字宽度*/
+  text-align: center;
+  /*设置文字居中*/
+
+}
+
+.milkyForSmall {
+
+  font-size: 30px;
+  /*设置文字大小*/
+  color: #8ec3b0;
+  /*设置文字颜色*/
+  text-shadow: 0 8px 10px #bcead5;
+  /*设置文字阴影*/
+  font-weight: bolder;
+  /*设置文字宽度*/
+  text-align: center;
+  /*设置文字居中*/
+
+}
+
+/* 分割线 */
+hr {
+  background-color: #8ec3b0;
+  color: #8ec3b0;
+  border: 2px solid #8ec3b0;
+  width: 350px;
+}
+.el-tabs__item{
+  margin-left: 30px !important;
+  color: #8ec3b0 !important;
+  width: 100px !important;
+  font-weight: 800 !important;
+  font-size: 20px !important;
+}
+.el-tabs__active-bar{
+  margin-left: 30px !important;
+  background-color: #8ec3b0 !important;
+  width: 100px !important;
+}
+.el-upload-list__item-name{
+  color: #8ec3b0 !important;
+  font-size: 16px !important;
+}
+.el-slider__bar{
+  background-color: #8ec3b0 !important;
+}
+.el-slider__button {
+ 
+  border: 2px solid #8ec3b0 !important;
+}
+.el-menu-item{
+  color: #8ec3b0 !important;
+  font-size: 16px !important;
+  font-weight: 800 !important;
+
+}
+a{
+  color: #8ec3b0;
+  text-decoration:none;
+
+
+}
+.el-dialog__body{
+  background-color: #def5e5 !important;
+}
+.el-dialog__header {
+  background-color: #def5e5 !important;
+ 
+}
+.el-dialog__title {
+  color: #8ec3b0 !important;
+  font-weight: 800;
+  font-size: 18px;
+}
